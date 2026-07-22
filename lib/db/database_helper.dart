@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 class DatabaseHelper {
   DatabaseHelper._internal();
@@ -14,14 +16,44 @@ class DatabaseHelper {
     return _db!;
   }
 
+  // Bump this whenever lib/seed/seed_questions.dart content changes so
+  // existing installs (native or web/IndexedDB) drop and reseed the
+  // question bank instead of keeping stale hardcoded data forever.
+  static const _dbVersion = 2;
+
   Future<Database> _initDatabase() async {
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+      return databaseFactory.openDatabase(
+        'ncs_app.db',
+        options: OpenDatabaseOptions(
+          version: _dbVersion,
+          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
+        ),
+      );
+    }
     final dir = await getApplicationDocumentsDirectory();
     final path = join(dir.path, 'ncs_app.db');
     return openDatabase(
       path,
-      version: 1,
+      version: _dbVersion,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    for (final table in [
+      'questions',
+      'question_sets',
+      'attempts',
+      'attempt_items',
+      'users',
+    ]) {
+      await db.execute('DROP TABLE IF EXISTS $table');
+    }
+    await _onCreate(db, newVersion);
   }
 
   Future<void> _onCreate(Database db, int version) async {
