@@ -1,12 +1,11 @@
 {
-    "name": "ncs_app",
-    "short_name": "ncs_app",
+    "name": "NCS 직업기초능력 훈련",
+    "short_name": "NCS 훈련",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#3F51B5",
+    "theme_color": "#3F51B5",
+    "description": "NCS 직업기초능력 10개 영역 문제풀이 연습 앱",
     "prefer_related_applications": false,
     "icons": [
         {
