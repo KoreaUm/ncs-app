@@ -19,7 +19,7 @@ class DatabaseHelper {
   // Bump this whenever lib/seed/seed_questions.dart content changes so
   // existing installs (native or web/IndexedDB) drop and reseed the
   // question bank instead of keeping stale hardcoded data forever.
-  static const _dbVersion = 3;
+  static const _dbVersion = 4;
 
   Future<Database> _initDatabase() async {
     if (kIsWeb) {

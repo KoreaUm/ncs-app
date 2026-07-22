@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../constants/admin_config.dart';
 import '../providers/session_provider.dart';
 import '../widgets/big_button.dart';
 import 'admin/admin_home_screen.dart';
@@ -111,10 +112,7 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 24),
                   TextButton.icon(
                     style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => const AdminHomeScreen()));
-                    },
+                    onPressed: () => _enterAdminMode(context),
                     icon: const Icon(Icons.admin_panel_settings),
                     label: const Text('관리자 모드 진입'),
                   ),
@@ -131,5 +129,62 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _enterAdminMode(BuildContext context) async {
+    final controller = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('관리자 코드 입력'),
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: controller,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: '관리자 코드',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value != kAdminAccessCode) {
+                  return '코드가 일치하지 않습니다';
+                }
+                return null;
+              },
+              onFieldSubmitted: (_) {
+                if (formKey.currentState!.validate()) {
+                  Navigator.of(dialogContext).pop(true);
+                }
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('취소'),
+            ),
+            FilledButton(
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  Navigator.of(dialogContext).pop(true);
+                }
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (ok == true && context.mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const AdminHomeScreen()),
+      );
+    }
   }
 }
