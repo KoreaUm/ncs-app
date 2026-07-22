@@ -29,7 +29,7 @@ class SqfliteQuestionRepository implements QuestionRepository {
     final count = Sqflite.firstIntValue(
         await db.rawQuery('SELECT COUNT(*) FROM questions'));
     if (count == 0) {
-      await insertAll(buildSeedQuestions());
+      await insertAll(await buildSeedQuestions());
     }
   }
 
